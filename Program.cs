@@ -1,7 +1,8 @@
 using System;
 using System.Windows.Forms;
-using GestionMagasin.Forms;
 using GestionMagasin.Data;
+using GestionMagasin.Forms;
+using GestionMagasin.Services;
 
 namespace GestionMagasin
 {
@@ -12,21 +13,21 @@ namespace GestionMagasin
         {
             ApplicationConfiguration.Initialize();
 
-            try
-            {
-                DatabaseInitializer.Initialiser();
+            DatabaseInitializer.Initialiser();
 
-                Application.Run(new LoginForm());
-            }
-            catch (Exception ex)
+            var utilisateurService = new UtilisateurService();
+
+            if (!utilisateurService.ExisteAdministrateur())
             {
-                MessageBox.Show(
-                    "Erreur au démarrage du logiciel : " + ex.Message,
-                    "Gestion Magasin",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error
+                utilisateurService.Ajouter(
+                    "Administrateur",
+                    "admin",
+                    "Admin@123",
+                    "ADMIN"
                 );
             }
+
+            Application.Run(new LoginForm());
         }
     }
 }
