@@ -1,6 +1,7 @@
 using System;
 using System.Windows.Forms;
 using GestionMagasin.Forms;
+using GestionMagasin.Data;
 
 namespace GestionMagasin
 {
@@ -10,7 +11,22 @@ namespace GestionMagasin
         static void Main()
         {
             ApplicationConfiguration.Initialize();
-            Application.Run(new LoginForm());
+
+            try
+            {
+                DatabaseInitializer.Initialiser();
+
+                Application.Run(new LoginForm());
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "Erreur au démarrage du logiciel : " + ex.Message,
+                    "Gestion Magasin",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
+            }
         }
     }
 }
