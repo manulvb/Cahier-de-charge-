@@ -120,5 +120,26 @@ namespace GestionMagasin.Services
                 Actif = true
             };
         }
+
+        // Vérifie si un administrateur actif existe déjà
+        public bool ExisteAdministrateur()
+        {
+            using var connexion = new SqliteConnection(
+                $"Data Source={GestionMagasin.Data.DatabaseInitializer.CheminBase}");
+
+            connexion.Open();
+
+            using var commande = connexion.CreateCommand();
+
+            commande.CommandText = @"
+                SELECT COUNT(*)
+                FROM Utilisateur
+                WHERE Role = 'ADMIN' AND Actif = 1;
+            ";
+
+            return Convert.ToInt32(
+                commande.ExecuteScalar()
+            ) > 0;
+        }
     }
 }
