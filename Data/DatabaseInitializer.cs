@@ -25,13 +25,26 @@ namespace GestionMagasin.Data
 
             connexion.Open();
 
-            using var commande = connexion.CreateCommand();
+            using (var commande = connexion.CreateCommand())
+            {
+                commande.CommandText = "PRAGMA foreign_keys = ON;";
+                commande.ExecuteNonQuery();
+            }
 
-            commande.CommandText = @"
-                PRAGMA foreign_keys = ON;
+            using var verification = connexion.CreateCommand();
+
+            verification.CommandText = @"
+                SELECT COUNT(*)
+                FROM sqlite_master
+                WHERE type = 'table'
+                AND name NOT LIKE 'sqlite_%';
             ";
 
-            commande.ExecuteNonQuery();
+            long nombreTables = (long)verification.ExecuteScalar()!;
+
+            // Si les tables existent déjà, on ne réexécute pas le schéma.
+            if (nombreTables > 0)
+                return;
 
             string cheminSchema = Path.Combine(
                 AppContext.BaseDirectory,
