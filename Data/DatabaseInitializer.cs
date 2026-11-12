@@ -32,6 +32,26 @@ namespace GestionMagasin.Data
             ";
 
             commande.ExecuteNonQuery();
+
+            string cheminSchema = Path.Combine(
+                AppContext.BaseDirectory,
+                "Database",
+                "Schema.sql"
+            );
+
+            if (!File.Exists(cheminSchema))
+            {
+                throw new FileNotFoundException(
+                    "Le fichier Schema.sql est introuvable.",
+                    cheminSchema
+                );
+            }
+
+            string script = File.ReadAllText(cheminSchema);
+
+            using var commandeSchema = connexion.CreateCommand();
+            commandeSchema.CommandText = script;
+            commandeSchema.ExecuteNonQuery();
         }
     }
 }
