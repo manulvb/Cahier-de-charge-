@@ -1,5 +1,7 @@
+using System;
 using System.Drawing;
 using System.Windows.Forms;
+using GestionMagasin.Services;
 
 namespace GestionMagasin.Forms
 {
@@ -8,6 +10,9 @@ namespace GestionMagasin.Forms
         private TextBox txtIdentifiant;
         private TextBox txtMotDePasse;
         private Button btnConnexion;
+
+        private UtilisateurService utilisateurService =
+            new UtilisateurService();
 
         public LoginForm()
         {
@@ -47,12 +52,7 @@ namespace GestionMagasin.Forms
             btnConnexion.Location = new Point(160, 220);
             btnConnexion.Width = 200;
 
-            btnConnexion.Click += (sender, e) =>
-            {
-                MessageBox.Show(
-                    "La vérification des identifiants sera ajoutée prochainement."
-                );
-            };
+            btnConnexion.Click += BtnConnexion_Click;
 
             Controls.Add(titre);
             Controls.Add(lblIdentifiant);
@@ -60,6 +60,47 @@ namespace GestionMagasin.Forms
             Controls.Add(lblMotDePasse);
             Controls.Add(txtMotDePasse);
             Controls.Add(btnConnexion);
+        }
+
+        private void BtnConnexion_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtIdentifiant.Text) ||
+                string.IsNullOrWhiteSpace(txtMotDePasse.Text))
+            {
+                MessageBox.Show("Veuillez remplir tous les champs.");
+                return;
+            }
+
+            try
+            {
+                var utilisateur = utilisateurService.Authentifier(
+                    txtIdentifiant.Text,
+                    txtMotDePasse.Text
+                );
+
+                if (utilisateur == null)
+                {
+                    MessageBox.Show("Identifiant ou mot de passe incorrect.");
+                    return;
+                }
+
+                MessageBox.Show("Bienvenue " + utilisateur.Nom + " !");
+
+                Hide();
+
+                using (DashboardForm tableauDeBord = new DashboardForm())
+                {
+                    tableauDeBord.ShowDialog();
+                }
+
+                Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "Erreur de connexion : " + ex.Message
+                );
+            }
         }
     }
 }
